@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🔥 xSTIXKS Brand OS 🔒</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" />
+  <style>
+    /* RESET & BASE */
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+    html, body { width:100%; height:100%; overflow:hidden; font-family:"Segoe UI", sans-serif; background:#000; }
+    body.darkmode { background:#111; }
+    button, input, select, textarea { font-family:inherit; }
+    button { cursor:pointer; }
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width:8px; height:8px; }
+    ::-webkit-scrollbar-track { background:rgba(0,0,0,0.2); }
+    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.3); border-radius:4px; }
+    ::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.5); }
+    .hidden { display:none!important; }
+    /* ANIMATED WALLPAPER */
+    #wallpaper { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(45deg, #ff0040, #ff8c00, #ffd800, #00ff6a, #00e5ff, #8a00ff, #ff00c8, #ff0040); background-size:800% 800%; animation:animateIridescent 20s ease infinite; z-index:1; transition:background 1s ease, animation 1s ease; }
+    @keyframes animateIridescent { 0%{background-position:0% 50%}25%{background-position:50% 100%}50%{background-position:100% 50%}75%{background-position:50% 0%}100%{background-position:0% 50%} }
+    .theme-dark-marble { background:linear-gradient(135deg,#2b2b2b,#111); animation:none; }
+    .theme-light-marble { background:linear-gradient(135deg,#f0f0f0,#d9d9d9); animation:none; }
+    .theme-blue-splash { background:radial-gradient(circle at center,#004080,#000020); animation:none; }
+    .theme-forest { background:linear-gradient(135deg,#2e5339,#1b2b21); animation:none; }
+    .theme-tech-matrix { background:#000 url('https://i.imgur.com/MRznrbX.png') center/cover; animation:none; }
+    .theme-sunset { background:linear-gradient(135deg,#ff5e62,#ff9966); animation:none; }
+    .theme-ocean { background:linear-gradient(135deg,#2e8bff,#004080); animation:none; }
+    .theme-space { background:url('https://i.imgur.com/5rN0DmR.jpg') no-repeat center center; background-size:cover; animation:none; }
+    .theme-custom-gradient { background:linear-gradient(135deg,#8e2de2,#4a00e0); background-size:400% 400%; animation:animateCustom 15s ease infinite; }
+    @keyframes animateCustom { 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
+    /* LOCK SCREEN */
+    #lock-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10; color:#fff; }
+    #lock-screen.darkmode { background:#111; }
+    #lock-screen h1 { margin-bottom:16px; font-size:48px; font-weight:bold; letter-spacing:3px; }
+    #lock-screen .date-display { font-size:28px; margin-bottom:6px; }
+    #lock-screen .time-display { font-size:60px; margin-bottom:40px; }
+    #lock-screen input[type="password"] { width:360px; padding:14px 16px; font-size:20px; border:2px solid #444; border-radius:8px; background:#111; color:#eee; text-align:center; margin-bottom:16px; }
+    #lock-screen button#unlock-btn { padding:14px 32px; font-size:20px; background:#2ecc71; border:none; border-radius:8px; color:#fff; transition:background 0.2s; }
+    #lock-screen button#unlock-btn:hover { background:#27ae60; }
+    #lock-screen #password-hint { margin-top:8px; font-size:16px; color:#ccc; }
+    #lock-screen #lock-error { color:#e74c3c; margin-top:12px; font-size:18px; display:none; }
+    /* DESKTOP & ICONS */
+    #desktop { position:absolute; top:0; left:0; width:100%; height:100%; display:none; flex-wrap:wrap; align-items:flex-start; padding:40px; z-index:2; }
+    .icon { width:96px; margin:16px 24px; color:#fff; text-align:center; cursor:pointer; transition:transform 0.15s ease, background 0.2s ease; padding:8px; border-radius:8px; }
+    .icon-img { font-size:40px; }
+    .icon-label { margin-top:8px; font-size:14px; white-space:nowrap; }
+    .icon:hover { transform:scale(1.15); background:rgba(255,255,255,0.1); }
+    .icon:active { transform:scale(0.95); }
+    .icon.selected { background:rgba(255,255,255,0.15); }
+    /* TASKBAR & START MENU */
+    #taskbar { position:absolute; bottom:0; left:0; width:100%; height:48px; background:rgba(0,0,0,0.75); display:none; align-items:center; z-index:3; padding:0 12px; }
+    #taskbar .left-group, #taskbar .right-group { display:flex; align-items:center; }
+    #start-button { width:96px; height:100%; background:rgba(255,255,255,0.1); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; font-weight:bold; border-radius:4px 0 0 0; border-right:1px solid #444; user-select:none; }
+    #start-button:hover { background:rgba(255,255,255,0.2); }
+    #running-apps { flex-grow:1; display:flex; align-items:center; padding-left:16px; overflow-x:auto; }
+    .task-icon { width:36px; height:36px; margin-right:8px; color:#fff; text-align:center; line-height:36px; font-size:20px; border-radius:6px; cursor:pointer; background:rgba(255,255,255,0.05); transition:background 0.2s ease; }
+    .task-icon:hover { background:rgba(255,255,255,0.15); }
+    #taskbar-time { margin-left:12px; color:#fff; font-size:16px; user-select:none; }
+    #notification-area { position:absolute; bottom:56px; right:16px; display:flex; flex-direction:column; align-items:flex-end; gap:8px; z-index:5; }
+    .notification { background:rgba(30,30,30,0.95); color:#fff; padding:12px 16px; border-radius:6px; min-width:240px; box-shadow:0 0 12px rgba(0,0,0,0.5); animation:fadeInUp 0.5s ease; font-size:14px; position:relative; }
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .notification .close-notif { position:absolute; top:4px; right:6px; color:#ccc; cursor:pointer; font-weight:bold; }
+    .notification .close-notif:hover { color:#fff; }
+    /* Start Menu */
+    #start-menu { position:absolute; bottom:48px; left:0; width:340px; background:rgba(30,30,30,0.98); display:none; flex-direction:column; border:1px solid #444; z-index:4; box-shadow:0 0 16px rgba(0,0,0,0.7); border-top-right-radius:8px; }
+    #start-menu.darkmode { background:rgba(15,15,15,0.98); }
+    #start-menu .search-bar { width:100%; padding:10px; border:none; background:#222; color:#fff; font-size:16px; outline:none; border-top-right-radius:8px; }
+    #start-menu .app-list { max-height:360px; overflow-y:auto; }
+    #start-menu .start-item { padding:12px 16px; color:#fff; cursor:pointer; border-bottom:1px solid #444; font-size:16px; display:flex; align-items:center; position:relative; }
+    #start-menu .start-item .item-icon { margin-right:12px; font-size:20px; }
+    #start-menu .start-item:hover { background:rgba(255,255,255,0.1); }
+    #start-menu .start-item.hidden { display:none; }
+    /* DESKTOP CONTEXT MENU */
+    #desktop-menu { position:absolute; display:none; background:#2a2a2a; border:1px solid #444; color:#fff; font-size:15px; z-index:6; box-shadow:0 0 12px rgba(0,0,0,0.5); border-radius:6px; }
+    #desktop-menu .context-item { padding:10px 14px; cursor:pointer; white-space:nowrap; position:relative; }
+    #desktop-menu .context-item:hover { background:rgba(255,255,255,0.1); }
+    #desktop-menu .context-item .submenu { display:none; position:absolute; top:0; left:100%; margin-left:-4px; background:#2a2a2a; border:1px solid #444; border-radius:6px; box-shadow:0 0 12px rgba(0,0,0,0.5); }
+    #desktop-menu .context-item:hover .submenu { display:block; }
+    #desktop-menu .context-item .submenu .context-item { padding:8px 12px; }
+    /* WINDOW MANAGER CORE */
+    .window { position:absolute; width:800px; height:600px; background:rgba(20,20,20,0.97); border:2px solid #555; border-radius:8px; box-shadow:0 0 24px rgba(0,0,0,0.7); z-index:100; display:flex; flex-direction:column; overflow:hidden; }
+    .window.darkmode { background:#1b1b1b; border-color:#444; }
+    .title-bar { height:36px; background:#333; color:#fff; display:flex; align-items:center; justify-content:space-between; padding:0 12px; cursor:move; flex-shrink:0; border-top-left-radius:6px; border-top-right-radius:6px; }
+    .title-bar.darkmode { background:#222; }
+    .title-bar .title { font-size:16px; pointer-events:none; }
+    .title-bar .window-controls { display:flex; align-items:center; }
+    .title-bar .window-controls span { width:28px; height:28px; line-height:28px; text-align:center; margin-left:6px; border-radius:4px; cursor:pointer; font-weight:bold; user-select:none; }
+    .title-bar .window-controls .min-btn:hover, .title-bar .window-controls .max-btn:hover { background:#444; }
+    .title-bar .window-controls .close-btn:hover { background:#e74c3c; }
+    .window-content { flex-grow:1; background:#1f1f1f; overflow:auto; padding:12px; color:#fff; font-size:15px; }
+    .window-content.darkmode { background:#141414; color:#ddd; }
+    .window.maximized { top:0!important; left:0!important; width:100%!important; height:calc(100% - 48px)!important; border-radius:0; }
+    .window.minimized { display:none; }
+    .resize-handle { position:absolute; width:16px; height:16px; right:2px; bottom:2px; cursor:se-resize; background:url("data:image/svg+xml;utf8,<svg fill='%23aaa' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M3 21h18v-2H3v2z'/><path d='M3 17h18v-2H3v2z'/><path d='M3 13h18v-2H3v2z'/></svg>") no-repeat center center; }
+    /* COMMON APP CONTAINER */
+    .app-container { width:100%; height:100%; overflow:hidden; position:relative; }
+  </style>
+</head>
+<body>
+  <div id="wallpaper"></div>
+  <div id="lock-screen">
+    <h1>xSTIXKS OS 1.0</h1>
+    <div class="date-display" id="lock-date">Loading Date...</div>
+    <div class="time-display" id="lock-time">Loading Time...</div>
+    <input type="password" id="lock-password" placeholder="Enter Password" autocomplete="off" />
+    <button id="unlock-btn">Unlock</button>
+    <div id="password-hint">Hint: letmein</div>
+    <div id="lock-error">Invalid password. Try again.</div>
+  </div>
+
+  <div id="desktop">
+    <div class="icon" data-app="Game Library"><div class="icon-img">📚</div><div class="icon-label">Game Library</div></div>
+    <div class="icon" data-app="Game Browser"><div class="icon-img">🌐</div><div class="icon-label">Game Browser</div></div>
+    <div class="icon" data-app="Strategy Notes"><div class="icon-img">📝</div><div class="icon-label">Strategy Notes</div></div>
+    <div class="icon" data-app="Game Calculator"><div class="icon-img">🧮</div><div class="icon-label">Game Calculator</div></div>
+    <div class="icon" data-app="Game Settings"><div class="icon-img">⚙️</div><div class="icon-label">Game Settings</div></div>
+    <div class="icon" data-app="Game Console"><div class="icon-img">💻</div><div class="icon-label">Game Console</div></div>
+    <div class="icon" data-app="Sketch Pad"><div class="icon-img">🎨</div><div class="icon-label">Sketch Pad</div></div>
+    <div class="icon" data-app="Soundtrack"><div class="icon-img">🎵</div><div class="icon-label">Soundtrack</div></div>
+    <div class="icon" data-app="Game Clips"><div class="icon-img">📹</div><div class="icon-label">Game Clips</div></div>
+    <div class="icon" data-app="Game Gallery"><div class="icon-img">🖼️</div><div class="icon-label">Game Gallery</div></div>
+    <div class="icon" data-app="Event Calendar"><div class="icon-img">📅</div><div class="icon-label">Event Calendar</div></div>
+    <div class="icon" data-app="Performance Monitor"><div class="icon-img">📊</div><div class="icon-label">Performance Monitor</div></div>
+    <div class="icon" data-app="Server Monitor"><div class="icon-img">👾</div><div class="icon-label">Server Monitor</div></div>
+    <div class="icon" data-app="Upvote Booster"><div class="icon-img">👍</div><div class="icon-label">Upvote Booster</div></div>
+    <div class="icon" data-app="Network Scanner"><div class="icon-img">🔌</div><div class="icon-label">Network Scanner</div></div>
+    <div class="icon" data-app="Wi-Fi Scanner"><div class="icon-img">📶</div><div class="icon-label">Wi-Fi Scanner</div></div>
+    <div class="icon" data-app="Key Generator"><div class="icon-img">🔑</div><div class="icon-label">Key Generator</div></div>
+    <div class="icon" data-app="Chat App"><div class="icon-img">💬</div><div class="icon-label">Chat App</div></div>
+    <div class="icon" data-app="Dev Console"><div class="icon-img">💻</div><div class="icon-label">Dev Console</div></div>
+    <div class="icon" data-app="xSTIXKS Web"><div class="icon-img">🕹️</div><div class="icon-label">xSTIXKS Web</div></div>
+  </div>
+
+  <div id="taskbar">
+    <div class="left-group">
+      <div id="start-button">Start</div>
+      <div id="running-apps"></div>
+    </div>
+    <div class="right-group">
+      <div id="taskbar-time">12:00 AM</div>
+    </div>
+  </div>
+
+  <div id="start-menu">
+    <input type="text" class="search-bar" placeholder="Search apps..." />
+    <div class="app-list">
+      <div class="start-item" data-app="Game Library"><div class="item-icon">📚</div> Game Library</div>
+      <div class="start-item" data-app="Game Browser"><div class="item-icon">🌐</div> Game Browser</div>
+      <div class="start-item" data-app="Strategy Notes"><div class="item-icon">📝</div> Strategy Notes</div>
+      <div class="start-item" data-app="Game Calculator"><div class="item-icon">🧮</div> Game Calculator</div>
+      <div class="start-item" data-app="Game Settings"><div class="item-icon">⚙️</div> Game Settings</div>
+      <div class="start-item" data-app="Game Console"><div class="item-icon">💻</div> Game Console</div>
+      <div class="start-item" data-app="Sketch Pad"><div class="item-icon">🎨</div> Sketch Pad</div>
+      <div class="start-item" data-app="Soundtrack"><div class="item-icon">🎵</div> Soundtrack</div>
+      <div class="start-item" data-app="Game Clips"><div class="item-icon">📹</div> Game Clips</div>
+      <div class="start-item" data-app="Game Gallery"><div class="item-icon">🖼️</div> Game Gallery</div>
+      <div class="start-item" data-app="Event Calendar"><div class="item-icon">📅</div> Event Calendar</div>
+      <div class="start-item" data-app="Performance Monitor"><div class="item-icon">📊</div> Performance Monitor</div>
+      <div class="start-item" data-app="Server Monitor"><div class="item-icon">👾</div> Server Monitor</div>
+      <div class="start-item" data-app="Upvote Booster"><div class="item-icon">👍</div> Upvote Booster</div>
+      <div class="start-item" data-app="Network Scanner"><div class="item-icon">🔌</div> Network Scanner</div>
+      <div class="start-item" data-app="Wi-Fi Scanner"><div class="item-icon">📶</div> Wi-Fi Scanner</div>
+      <div class="start-item" data-app="Key Generator"><div class="item-icon">🔑</div> Key Generator</div>
+      <div class="start-item" data-app="Chat App"><div class="item-icon">💬</div> Chat App</div>
+      <div class="start-item" data-app="Dev Console"><div class="item-icon">💻</div> Dev Console</div>
+      <div class="start-item" data-app="xSTIXKS Web"><div class="item-icon">🕹️</div> xSTIXKS Web</div>
+    </div>
+  </div>
+
+  <div id="notification-area"></div>
+
+  <div id="desktop-menu">
+    <div class="context-item" data-action="refresh">Refresh</div>
+    <div class="context-item" data-action="add-background">
+      Add Preset Background
+      <div class="submenu">
+        <div class="context-item">background1.jpg</div>
+        <div class="context-item">background2.png</div>
+        <div class="context-item">background3.jpg</div>
+      </div>
+    </div>
+    <div class="context-item" data-action="change-wallpaper">
+      Change Wallpaper
+      <div class="submenu">
+        <div class="context-item" data-wall="iridescent">Iridescent</div>
+        <div class="context-item" data-wall="dark-marble">Dark Marble</div>
+        <div class="context-item" data-wall="light-marble">Light Marble</div>
+        <div class="context-item" data-wall="blue-splash">Blue Splash</div>
+        <div class="context-item" data-wall="forest">Forest</div>
+        <div class="context-item" data-wall="tech-matrix">Tech Matrix</div>
+        <div class="context-item" data-wall="sunset">Sunset</div>
+        <div class="context-item" data-wall="ocean">Ocean</div>
+        <div class="context-item" data-wall="space">Space</div>
+        <div class="context-item" data-wall="custom-gradient">Custom Gradient</div>
+      </div>
+    </div>
+    <div class="context-item" data-action="display-settings">Display Settings</div>
+  </div>
+
+  <div id="window-container"></div>
+
+  <script>
+    $(function() {
+      const $wallpaper = $("#wallpaper"), $lockScreen = $("#lock-screen"),
+            $lockDate = $("#lock-date"), $lockTime = $("#lock-time"),
+            $unlockBtn = $("#unlock-btn"), $lockPwd = $("#lock-password"),
+            $lockError = $("#lock-error"), $desktop = $("#desktop"),
+            $taskbar = $("#taskbar"), $startButton = $("#start-button"),
+            $startMenu = $("#start-menu"), $runningApps = $("#running-apps"),
+            $taskbarTime = $("#taskbar-time"), $desktopMenu = $("#desktop-menu"),
+            $windowContainer = $("#window-container"), $notificationArea = $("#notification-area");
+
+      const LOCK_PASSWORD = "letmein";
+      let zIndexCounter = 1000, windowCounter = 0, runningWindows = {};
+
+      function formatDate(date) {
+        const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+        return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+      }
+      function formatTime(date) {
+        let h = date.getHours(), m = date.getMinutes().toString().padStart(2, "0"), s = date.getSeconds().toString().padStart(2, "0");
+        const ampm = h < 12 ? "AM" : "PM"; h = h % 12; if (h === 0) h = 12;
+        return `${h}:${m}:${s} ${ampm}`;
+      }
+      function updateClocks() {
+        const now = new Date();
+        $lockDate.text(formatDate(now));
+        $lockTime.text(formatTime(now));
+        $taskbarTime.text(formatTime(now));
+      }
+      updateClocks(); setInterval(updateClocks, 1000);
+
+      function getNextWindowID() { windowCounter++; return "win-" + windowCounter; }
+      function bringToFront($win) { zIndexCounter++; $win.css("z-index", zIndexCounter); }
+      function addTaskbarIcon(winID, iconEmoji, title) {
+        const $icon = $(`<div class="task-icon" data-win="${winID}" title="${title}">${iconEmoji}</div>`);
+        $runningApps.append($icon);
+        runningWindows[winID].iconEle = $icon;
+        $icon.on("click", function() {
+          const wID = $(this).data("win"), winState = runningWindows[wID];
+          if (winState.minimized) {
+            $("#" + wID).removeClass("minimized").css("display", "flex");
+            winState.minimized = false;
+            bringToFront($("#" + wID));
+          } else {
+            $("#" + wID).addClass("minimized");
+            winState.minimized = true;
+          }
+        });
+      }
+      function removeTaskbarIcon(winID) {
+        if (runningWindows[winID] && runningWindows[winID].iconEle) {
+          runningWindows[winID].iconEle.remove();
+        }
+        delete runningWindows[winID];
+      }
+      function showNotification(message, duration=4000) {
+        const $notif = $(`<div class="notification"><span class="close-notif">×</span><div class="notif-content">${message}</div></div>`);
+        $notificationArea.prepend($notif);
+        $notif.find(".close-notif").on("click", () => { $notif.fadeOut(200, () => $notif.remove()); });
+        setTimeout(() => { $notif.fadeOut(500, () => $notif.remove()); }, duration);
+      }
+
+      $unlockBtn.on("click", () => {
+        const pw = $lockPwd.val().trim();
+        if (pw !== LOCK_PASSWORD) {
+          $lockError.show().text("Invalid password. Try again.");
+          return;
+        }
+        $lockError.hide();
+        $lockScreen.fadeOut(500, () => { $desktop.show(); $taskbar.show(); showNotification("Welcome to xSTIXKS OS!"); });
+      });
+      $lockPwd.on("keypress", (e) => { if (e.which === 13) $unlockBtn.click(); });
+
+      $desktop.find(".icon").draggable({
+        containment: "#desktop",
+        start: function() { $(this).addClass("selected"); },
+        stop: function() { $(this).removeClass("selected"); }
+      });
+
+      $(document).on("contextmenu", (e) => {
+        if ($(e.target).closest("#desktop").length) {
+          e.preventDefault();
+          const x = e.pageX, y = e.pageY;
+          $desktopMenu.css({ top: y + "px", left: x + "px" }).show();
+        } else {
+          $desktopMenu.hide();
+        }
+      });
+      $(document).on("click", (e) => { if (!$(e.target).closest("#desktop-menu").length) $desktopMenu.hide(); });
+      $desktopMenu.find(".context-item").on("click", function() {
+        const action = $(this).data("action");
+        $desktopMenu.hide();
+        if (action === "refresh") {
+          $desktop.fadeOut(100).fadeIn(100);
+          showNotification("Desktop refreshed.");
+        } else if (action === "add-background") {
+          showNotification("Place images in web/assets/backgrounds and list them under Preset Background.");
+        } else if (action === "change-wallpaper") {
+          // handled by submenu
+        } else if (action === "display-settings") {
+          openAppWindow("Game Settings");
+        }
+      });
+      $desktopMenu.find(".context-item[data-wall]").on("click", function(e) {
+        const theme = $(this).data("wall");
+        $wallpaper.removeClass("theme-dark-marble theme-light-marble theme-blue-splash theme-forest theme-tech-matrix theme-sunset theme-ocean theme-space theme-custom-gradient");
+        if (theme === "iridescent") {
+          $wallpaper.css({ animation: "animateIridescent 20s ease infinite", background: "linear-gradient(45deg, #ff0040, #ff8c00, #ffd800, #00ff6a, #00e5ff, #8a00ff, #ff00c8, #ff0040)" });
+        } else {
+          $wallpaper.addClass("theme-" + theme).css("animation", "none");
+        }
+        showNotification("Wallpaper set to " + theme.replace("-", " ").toUpperCase() + ".");
+      });
+
+      $startButton.on("click", (e) => {
+        e.stopPropagation();
+        $startMenu.toggle();
+        $startMenu.find(".search-bar").focus();
+      });
+      $(document).on("click", (e) => {
+        if (!$(e.target).closest("#start-menu").length && !$(e.target).closest("#start-button").length) {
+          $startMenu.hide();
+        }
+      });
+      $startMenu.find(".search-bar").on("input", function() {
+        const text = $(this).val().toLowerCase();
+        $startMenu.find(".start-item").each(function() {
+          const label = $(this).text().toLowerCase();
+          if (label.includes(text)) $(this).removeClass("hidden"); else $(this).addClass("hidden");
+        });
+      });
+      $startMenu.find(".start-item").on("click", function() {
+        const appName = $(this).data("app"); openAppWindow(appName); $startMenu.hide();
+      });
+
+      $desktop.find(".icon").on("dblclick", function() {
+        const appName = $(this).data("app"); openAppWindow(appName);
+      });
+
+      function openAppWindow(appName) {
+        const winID = getNextWindowID();
+        const $win = $(`<div class="window" id="${winID}"><div class="title-bar"><div class="title">${appName}</div><div class="window-controls"><span class="min-btn" title="Minimize">—</span><span class="max-btn" title="Maximize/Restore">⬜</span><span class="close-btn" title="Close">✕</span></div></div><div class="window-content"></div><div class="resize-handle"></div></div>`);
+        $windowContainer.append($win);
+        const leftPos = Math.random() * (window.innerWidth - 820);
+        const topPos  = Math.random() * (window.innerHeight - 660) + 48;
+        $win.css({ left: leftPos + "px", top: topPos + "px", "z-index": zIndexCounter });
+        zIndexCounter++;
+        $win.draggable({ handle:".title-bar", containment:"body", start:()=>bringToFront($win) }).resizable({ containment:"body", minWidth:360, minHeight:240, handles:"n,e,s,w,ne,nw,se,sw", start:()=>bringToFront($win) });
+        runningWindows[winID] = { title:appName, minimized:false, iconEle:null };
+
+        let iconEmoji="❔";
+        switch(appName) {
+          case "Game Library":       iconEmoji="📚"; break;
+          case "Game Browser":       iconEmoji="🌐"; break;
+          case "Strategy Notes":     iconEmoji="📝"; break;
+          case "Game Calculator":    iconEmoji="🧮"; break;
+          case "Game Settings":      iconEmoji="⚙️"; break;
+          case "Game Console":       iconEmoji="💻"; break;
+          case "Sketch Pad":         iconEmoji="🎨"; break;
+          case "Soundtrack":         iconEmoji="🎵"; break;
+          case "Game Clips":         iconEmoji="📹"; break;
+          case "Game Gallery":       iconEmoji="🖼️"; break;
+          case "Event Calendar":     iconEmoji="📅"; break;
+          case "Performance Monitor":iconEmoji="📊"; break;
+          case "Server Monitor":     iconEmoji="👾"; break;
+          case "Upvote Booster":     iconEmoji="👍"; break;
+          case "Network Scanner":    iconEmoji="🔌"; break;
+          case "Wi-Fi Scanner":      iconEmoji="📶"; break;
+          case "Key Generator":      iconEmoji="🔑"; break;
+          case "Chat App":           iconEmoji="💬"; break;
+          case "Dev Console":        iconEmoji="💻"; break;
+          case "xSTIXKS Web":        iconEmoji="🕹️"; break;
+        }
+        addTaskbarIcon(winID, iconEmoji, appName);
+
+        const $minBtn = $win.find(".min-btn"), $maxBtn = $win.find(".max-btn"), $closeBtn = $win.find(".close-btn");
+        $minBtn.on("click", () => { $win.addClass("minimized"); runningWindows[winID].minimized = true; });
+        $maxBtn.on("click", () => {
+          if ($win.hasClass("maximized")) {
+            $win.removeClass("maximized");
+            $win.css({ width:$win.data("orig-width"), height:$win.data("orig-height"), left:$win.data("orig-left"), top:$win.data("orig-top") });
+          } else {
+            $win.data("orig-width", $win.css("width"));
+            $win.data("orig-height", $win.css("height"));
+            $win.data("orig-left", $win.css("left"));
+            $win.data("orig-top", $win.css("top"));
+            $win.addClass("maximized").css({ left:0, top:48+"px", width:window.innerWidth+"px", height:(window.innerHeight-48)+"px" });
+          }
+        });
+        $closeBtn.on("click", () => { $win.remove(); removeTaskbarIcon(winID); });
+        $win.on("mousedown", () => bringToFront($win));
+
+        const $content = $win.find(".window-content");
+        switch(appName) {
+          case "Game Library":       $content.html("<p>Game Library (mock)</p>"); break;
+          case "Game Browser":       $content.html("<p>Game Browser (mock)</p>"); break;
+          case "Strategy Notes":     $content.html("<textarea style='width:100%;height:100%;background:#111;color:#0f0;font-family:monospace;'></textarea>"); break;
+          case "Game Calculator":    renderCalculator($content); break;
+          case "Game Settings":      renderSettings($content); break;
+          case "Game Console":       renderTerminal($content); break;
+          case "Sketch Pad":         renderPaint($content); break;
+          case "Soundtrack":         renderMusic($content); break;
+          case "Game Clips":         renderVideoPlayer($content); break;
+          case "Game Gallery":       renderImageViewer($content); break;
+          case "Event Calendar":     renderCalendar($content); break;
+          case "Performance Monitor":renderSysMonitor($content); break;
+          case "Server Monitor":     renderFiveMMonitor($content); break;
+          case "Upvote Booster":     renderUpvoteBooster($content); break;
+          case "Network Scanner":    renderPortScanner($content); break;
+          case "Wi-Fi Scanner":      renderWifiScanner($content); break;
+          case "Key Generator":      renderPasswordGenerator($content); break;
+          case "Chat App":           renderChatApp($content); break;
+          case "Dev Console":        renderCodeEditor($content); break;
+          case "xSTIXKS Web":        renderXSTIXKSWeb($content); break;
+          default:                   $content.html("<p>Unknown App: " + appName + "</p>");
+        }
+        bringToFront($win);
+      }
+
+      /* Render functions (same as before but included for completeness) */
+      function renderCalculator($container) {
+        const html = `
+          <div class="calc-container">
+            <div class="calc-display" id="calc-display"></div>
+            <div class="calc-buttons">
+              ${["7","8","9","/","sin","cos","4","5","6","*","tan","log","1","2","3","-","√","^","0",".","=","+","(",")"].map(btn => "<button class='calc-btn'>" + btn + "</button>").join("")}
+            </div>
+          </div>`;
+        $container.html(html);
+        const $display = $container.find("#calc-display");
+        let expression = "";
+        $container.find(".calc-btn").on("click", function() {
+          const val = $(this).text();
+          if (val === "=") {
+            try { const result = Function('"use strict";return (' + expression + ")")(); expression = String(result); }
+            catch { expression = "Error"; }
+          } else if (["sin","cos","tan","log","√"].includes(val)) {
+            if (expression) {
+              let num = parseFloat(expression), res = num;
+              switch(val) { case "sin": res = Math.sin(num); break; case "cos": res = Math.cos(num); break; case "tan": res = Math.tan(num); break; case "log": res = Math.log10(num); break; case "√": res = Math.sqrt(num); break; }
+              expression = String(res);
+            }
+          } else if (val === "^") expression += "**"; else expression += val;
+          $display.text(expression);
+        });
+      }
+
+      function renderSettings($container) {
+        const html = `
+          <div class="settings-container">
+            <div class="settings-section">
+              <label for="theme-select">Preset Wallpapers (place images in <code>web/assets/backgrounds</code>):</label>
+              <select id="theme-select">
+                <option value="irridescent">Irridescent (Default)</option>
+                <option value="dark-marble">Dark Marble</option>
+                <option value="light-marble">Light Marble</option>
+                <option value="blue-splash">Blue Splash</option>
+                <option value="forest">Forest</option>
+                <option value="tech-matrix">Tech Matrix</option>
+                <option value="sunset">Sunset</option>
+                <option value="ocean">Ocean</option>
+                <option value="space">Space</option>
+                <option value="custom-gradient">Custom Gradient</option>
+                <!-- Add options for images placed in assets/backgrounds -->
+              </select>
+            </div>
+            <div class="settings-section">
+              <label><input type="checkbox" id="darkmode-toggle"> Enable Dark Mode</label>
+            </div>
+            <div class="settings-section slider-container">
+              <label for="volume-range">System Volume:</label>
+              <input type="range" id="volume-range" min="0" max="100" value="50">
+            </div>
+          </div>`;
+        $container.html(html);
+        const savedTheme = localStorage.getItem("os-wallpaper-theme") || "iridescent";
+        $container.find("#theme-select").val(savedTheme).trigger("change");
+        const savedDark = localStorage.getItem("os-darkmode") === "true";
+        $container.find("#darkmode-toggle").prop("checked", savedDark).trigger("change");
+        $container.find("#theme-select").on("change", function() {
+          const theme = $(this).val();
+          localStorage.setItem("os-wallpaper-theme", theme);
+          $wallpaper.removeClass("theme-dark-marble theme-light-marble theme-blue-splash theme-forest theme-tech-matrix theme-sunset theme-ocean theme-space theme-custom-gradient");
+          if (theme === "iridescent") {
+            $wallpaper.css({ animation: "animateIridescent 20s ease infinite", background: "linear-gradient(45deg, #ff0040, #ff8c00, #ffd800, #00ff6a, #00e5ff, #8a00ff, #ff00c8, #ff0040)" });
+          } else {
+            $wallpaper.addClass("theme-" + theme).css("animation", "none");
+          }
+          showNotification("Wallpaper updated.");
+        });
+        $container.find("#darkmode-toggle").on("change", function() {
+          const enabled = $(this).is(":checked");
+          localStorage.setItem("os-darkmode", enabled);
+          if (enabled) { $("body").addClass("darkmode"); $desktop.addClass("darkmode"); $startMenu.addClass("darkmode"); showNotification("Dark Mode enabled."); }
+          else { $("body").removeClass("darkmode"); $desktop.removeClass("darkmode"); $startMenu.removeClass("darkmode"); showNotification("Dark Mode disabled."); }
+        });
+        $container.find("#volume-range").on("input", function() {
+          const vol = $(this).val();
+          showNotification("System volume set to " + vol + "%");
+        });
+      }
+
+      function renderTerminal($container) {
+        const html = `
+          <div class="terminal-container">
+            <div class="terminal-tabs"><div class="tab active" data-tab="tab1">Tab 1</div></div>
+            <div class="terminal-output" id="terminal-output">Welcome to xSTIXKS Game Console\n</div>
+            <div class="terminal-input-container">
+              <input type="text" class="terminal-prompt" value="C:\>">
+              <input type="text" class="terminal-input" placeholder="Type a command...">
+            </div>
+          </div>`;
+        $container.html(html);
+        const $output = $container.find("#terminal-output"), $input = $container.find(".terminal-input");
+        $input.on("keypress", function(e) {
+          if (e.which === 13) {
+            const cmd = $(this).val().trim();
+            if (cmd) {
+              $output.append(`\nC:\> ${cmd}`);
+              switch (cmd.toLowerCase()) {
+                case "help": $output.append("\nAvailable commands: help, date, clear"); break;
+                case "date": $output.append(`\n${new Date().toString()}`); break;
+                case "clear": $output.text(""); break;
+                default: $output.append("\nUnknown command.");
+              }
+              $output.scrollTop($output.prop("scrollHeight"));
+              $(this).val("");
+            }
+          }
+        });
+      }
+
+      function renderPaint($container) {
+        const html = `
+          <div class="paint-container">
+            <canvas class="paint-canvas"></canvas>
+            <div class="paint-toolbar">
+              <button id="pencil-btn">✏️</button>
+              <button id="eraser-btn">🧽</button>
+              <input type="color" id="color-picker" value="#ffffff">
+              <input type="range" id="brush-size" min="1" max="20" value="5">
+            </div>
+            <div class="paint-layer-selector">
+              <label for="layer-select">Layer:</label>
+              <select id="layer-select"><option value="1">Layer 1</option><option value="2">Layer 2</option><option value="3">Layer 3</option></select>
+            </div>
+          </div>`;
+        $container.html(html);
+        const canvas = $container.find(".paint-canvas")[0], ctx = canvas.getContext("2d");
+        canvas.width = $container.width(); canvas.height = $container.height();
+        let drawing = false, tool = "pencil", color = "#ffffff", brushSize = 5;
+        function startDraw(e) { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); }
+        function draw(e) { if (!drawing) return; if (tool === "pencil") { ctx.strokeStyle = color; ctx.lineWidth = brushSize; ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } else if (tool === "eraser") { ctx.clearRect(e.offsetX - brushSize/2, e.offsetY - brushSize/2, brushSize, brushSize); } }
+        function endDraw() { drawing = false; }
+        $container.find(".paint-canvas").on("mousedown", startDraw).on("mousemove", draw).on("mouseup", endDraw).on("mouseleave", endDraw);
+        $container.find("#pencil-btn").on("click", () => tool = "pencil");
+        $container.find("#eraser-btn").on("click", () => tool = "eraser");
+        $container.find("#color-picker").on("change", function() { color = $(this).val(); });
+        $container.find("#brush-size").on("input", function() { brushSize = $(this).val(); });
+      }
+
+      function renderMusic($container) {
+        const html = `
+          <div class="music-container">
+            <div class="music-playlist">
+              <div class="track">Track 1 - mock</div>
+              <div class="track">Track 2 - mock</div>
+              <div class="track">Track 3 - mock</div>
+            </div>
+            <div class="music-controls">
+              <button id="prev-track">⏮️</button>
+              <button id="play-pause">▶️</button>
+              <button id="next-track">⏭️</button>
+            </div>
+          </div>`;
+        $container.html(html);
+        let playing = false;
+        $container.find("#play-pause").on("click", function() {
+          playing = !playing; $(this).text(playing ? "⏸️" : "▶️"); showNotification(playing ? "Music playing (mock)" : "Music paused");
+        });
+        $container.find("#prev-track").on("click", () => showNotification("Previous track (mock)"));
+        $container.find("#next-track").on("click", () => showNotification("Next track (mock)"));
+      }
+
+      function renderVideoPlayer($container) {
+        const html = `
+          <div class="video-container">
+            <div class="video-display">
+              <video id="video-player" controls>
+                <source src="" type="video/mp4">
+                <p style="color:#fff;">No video loaded (mock).</p>
+              </video>
+            </div>
+            <div class="video-controls">
+              <button id="load-video">Load Video</button>
+            </div>
+          </div>`;
+        $container.html(html);
+        $container.find("#load-video").on("click", () => { showNotification("Load video feature not implemented (mock)."); });
+      }
+
+      function renderImageViewer($container) {
+        const html = `
+          <div class="image-viewer-container">
+            <img src="https://i.imgur.com/Tr3C6QV.jpg" alt="Sample" />
+            <div class="image-viewer-controls">
+              <button id="zoom-in">➕</button>
+              <button id="zoom-out">➖</button>
+            </div>
+          </div>`;
+        $container.html(html);
+        let scale = 1;
+        const $img = $container.find("img");
+        $container.find("#zoom-in").on("click", () => { scale += 0.1; $img.css("transform", `scale(${scale})`); });
+        $container.find("#zoom-out").on("click", () => { scale = Math.max(0.1, scale - 0.1); $img.css("transform", `scale(${scale})`); });
+      }
+
+      function renderCalendar($container) {
+        const html = `
+          <div class="calendar-container">
+            <div class="calendar-header">
+              <button id="prev-month">◀️</button>
+              <div class="calendar-month" id="calendar-month">Month YYYY</div>
+              <button id="next-month">▶️</button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+          </div>`;
+        $container.html(html);
+        let current = new Date();
+        function drawCalendar() {
+          const month = current.getMonth(), year = current.getFullYear();
+          const firstDay = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
+          $("#calendar-month").text(current.toLocaleString("default", { month: "long", year: "numeric" }));
+          const $grid = $("#calendar-grid"); $grid.empty();
+          for (let i = 0; i < firstDay; i++) { $grid.append('<div class="day"></div>'); }
+          for (let d = 1; d <= daysInMonth; d++) {
+            const today = new Date();
+            const isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+            const dayClass = isToday ? "day today" : "day";
+            $grid.append(`<div class="${dayClass}">${d}</div>`);
+          }
+        }
+        drawCalendar();
+        $container.find("#prev-month").on("click", () => { current.setMonth(current.getMonth() - 1); drawCalendar(); });
+        $container.find("#next-month").on("click", () => { current.setMonth(current.getMonth() + 1); drawCalendar(); });
+      }
+
+      function renderSysMonitor($container) {
+        const html = `
+          <div class="sysmon-container">
+            <div class="sysmon-header">System Monitor (Mock)</div>
+            <div class="sysmon-content" id="sysmon-content">Loading stats...</div>
+          </div>`;
+        $container.html(html);
+        function updateStats() {
+          const cpu = Math.floor(Math.random() * 100), mem = Math.floor(Math.random() * 100);
+          $("#sysmon-content").text(`CPU Usage: ${cpu}%\nMemory Usage: ${mem}%\n\n(These are mocked values.)`);
+        }
+        updateStats(); setInterval(updateStats, 2000);
+      }
+
+      function renderFiveMMonitor($container) {
+        const html = `
+          <div class="fivem-monitor-container">
+            <div class="input-group">
+              <input type="text" id="fivem-ip" placeholder="Server IP" />
+              <button id="fivem-check">Check Status</button>
+            </div>
+            <div class="fivem-log" id="fivem-log">Enter an IP and click "Check Status".</div>
+          </div>`;
+        $container.html(html);
+        $container.find("#fivem-check").on("click", () => {
+          $("#fivem-log").append("\nChecking server... (mock)\nOnline players: " + Math.floor(Math.random() * 128));
+          $("#fivem-log").scrollTop($("#fivem-log")[0].scrollHeight);
+        });
+      }
+
+      function renderUpvoteBooster($container) {
+        const html = `
+          <div class="upvote-booster-container">
+            <label for="upvote-url">Enter URL to upvote:</label>
+            <input type="text" id="upvote-url" placeholder="e.g. https://...">
+            <label for="upvote-count">Number of upvotes:</label>
+            <input type="number" id="upvote-count" min="1" value="1">
+            <button id="do-upvote">Start Upvote</button>
+            <div class="upvote-log" id="upvote-log">Waiting for input...</div>
+          </div>`;
+        $container.html(html);
+        $container.find("#do-upvote").on("click", () => {
+          const url   = $container.find("#upvote-url").val().trim(), count = parseInt($container.find("#upvote-count").val(), 10);
+          if (!url || !count) { showNotification("Please provide a valid URL and count."); return; }
+          $("#upvote-log").append(`\nUpvoting ${url} x ${count} (mock).`);
+          $("#upvote-log").scrollTop($("#upvote-log")[0].scrollHeight);
+        });
+      }
+
+      function renderPortScanner($container) {
+        const html = `
+          <div class="port-scanner-container">
+            <label for="scan-ip">IP to scan:</label>
+            <input type="text" id="scan-ip" placeholder="e.g. 192.168.1.1" />
+            <button id="start-scan">Start Scan</button>
+            <div class="port-log" id="port-log">Enter IP and click "Start Scan".</div>
+          </div>`;
+        $container.html(html);
+        $container.find("#start-scan").on("click", () => {
+          const ip = $container.find("#scan-ip").val().trim();
+          if (!ip) { showNotification("Please enter an IP address."); return; }
+          $("#port-log").append("\nScanning ports for " + ip + " (mock)...");
+          for (let p = 20; p <= 25; p++) { const open = Math.random() > 0.5; $("#port-log").append(`\nPort ${p}: ${open ? "OPEN" : "CLOSED"}`); }
+          $("#port-log").scrollTop($("#port-log")[0].scrollHeight);
+        });
+      }
+
+      function renderWifiScanner($container) {
+        const html = `
+          <div class="wifi-scanner-container">
+            <button id="scan-wifi">Scan for Wi-Fi</button>
+            <div class="wifi-list" id="wifi-list">Click "Scan for Wi-Fi" to begin.</div>
+          </div>`;
+        $container.html(html);
+        $container.find("#scan-wifi").on("click", () => {
+          const networks = ["Home_Network", "Coffee_Shop_WiFi", "Mall_Free_WiFi", "Neighbor_WiFi"];
+          $("#wifi-list").empty();
+          networks.forEach(net => {
+            const strength = Math.floor(Math.random() * 100) + "%";
+            $("#wifi-list").append(`<div>${net} - Strength: ${strength}</div>`);
+          });
+        });
+      }
+
+      function renderPasswordGenerator($container) {
+        const html = `
+          <div class="password-gen-container">
+            <div class="options">
+              <label><input type="checkbox" id="opt-uppercase" checked> Uppercase</label>
+              <label><input type="checkbox" id="opt-lowercase" checked> Lowercase</label>
+              <label><input type="checkbox" id="opt-numbers" checked> Numbers</label>
+              <label><input type="checkbox" id="opt-symbols" checked> Symbols</label>
+            </div>
+            <label for="pw-length">Length:</label>
+            <input type="number" id="pw-length" min="4" max="32" value="12">
+            <button id="gen-password">Generate Password</button>
+            <div class="password-output" id="password-output"></div>
+          </div>`;
+        $container.html(html);
+        $container.find("#gen-password").on("click", () => {
+          const len      = parseInt($container.find("#pw-length").val(), 10);
+          const useUp    = $container.find("#opt-uppercase").is(":checked");
+          const useLow   = $container.find("#opt-lowercase").is(":checked");
+          const useNum   = $container.find("#opt-numbers").is(":checked");
+          const useSym   = $container.find("#opt-symbols").is(":checked");
+          const upper    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+          const lower    = "abcdefghijklmnopqrstuvwxyz";
+          const numbers  = "0123456789";
+          const symbols  = "!@#$%^&*()_+[]{}|;:,.<>?"; 
+          let chars = "";
+          if (useUp) chars += upper;
+          if (useLow) chars += lower;
+          if (useNum) chars += numbers;
+          if (useSym) chars += symbols;
+          if (!chars) { showNotification("Select at least one character set."); return; }
+          let pw = "";
+          for (let i = 0; i < len; i++) {
+            pw += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          $("#password-output").text(pw);
+        });
+      }
+
+      function renderChatApp($container) {
+        const html = `
+          <div class="chat-container">
+            <div class="chat-messages" id="chat-messages">[Mock Chat Initialized]\n</div>
+            <div class="chat-input-container">
+              <input type="text" id="chat-input" placeholder="Type a message...">
+              <button id="chat-send">Send</button>
+            </div>
+          </div>`;
+        $container.html(html);
+        $container.find("#chat-send").on("click", () => {
+          const msg = $("#chat-input").val().trim();
+          if (!msg) return;
+          $("#chat-messages").append(`[You]: ${msg}\n[Bot]: (mock response)\n`);
+          $("#chat-messages").scrollTop($("#chat-messages")[0].scrollHeight);
+          $("#chat-input").val("");
+        });
+      }
+
+      function renderCodeEditor($container) {
+        const html = `
+          <div class="code-editor-container">
+            <div class="code-editor-toolbar">
+              <button id="run-code">Run</button>
+              <button id="save-code">Save</button>
+            </div>
+            <div contenteditable="true" class="code-editor-textarea" spellcheck="false">
+<span class="comment">// Type JavaScript here...</span>
+<br>
+<span class="keyword">function</span> <span class="string">hello()</span> {
+<br>&nbsp;&nbsp;<span class="keyword">alert</span><span class="string">(</span><span class="string">"Hello, SecureOS!"</span><span class="string">)</span>;
+<br>}
+            </div>
+          </div>`;
+        $container.html(html);
+        $container.find("#run-code").on("click", () => {
+          const code = $container.find(".code-editor-textarea").text();
+          try { eval(code); } catch (err) { showNotification("Error in code: " + err.message); }
+        });
+        $container.find("#save-code").on("click", () => { showNotification("Code saved (mock)."); });
+      }
+
+      function renderXSTIXKSWeb($container) {
+        const html = `
+          <div class="app-container" style="padding:0;">
+            <iframe src="web/index.html" style="width:100%; height:100%; border:none;" allowfullscreen></iframe>
+          </div>`;
+        $container.html(html);
+      }
+
+      $(document).on("click", () => { $desktopMenu.hide(); });
+    });
+  </script>
+</body>
+</html>
